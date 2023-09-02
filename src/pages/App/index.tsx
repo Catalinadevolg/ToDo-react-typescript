@@ -4,7 +4,7 @@ import axios from "axios";
 
 import { TodoList } from "@/components/TodoList";
 import { addInfoToData } from "@/utils/addInfoToData";
-import { StFlex } from "@/styles/global";
+import { StFlex, StSpinner } from "@/styles/global";
 import { todoAPI } from "@/api/todos";
 import type { TodoItemData } from "@/types";
 import {
@@ -20,7 +20,7 @@ import {
 function App() {
   const [todoList, setTodoList] = useState<TodoItemData[]>([]);
   const [totalTasksCount, setTotalTasksCount] = useState<number>(0);
-  const [isTasksLoading, setIsTasksLoading] = useState(false);
+  const [isTasksLoading, setIsTasksLoading] = useState(true);
   const [page, setPage] = useState<number>(1);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -58,6 +58,14 @@ function App() {
       getTodoList().catch((e) => console.log("error message: ", e));
     }
   }, [entry]);
+
+  useEffect(() => {
+    setIsTasksLoading(false);
+  }, []);
+
+  if (!todoList.length && isTasksLoading) {
+    return <StSpinner><div></div></StSpinner>
+  };
 
   return (
     <StApp ref={containerRef}>
