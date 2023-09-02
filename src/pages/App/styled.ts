@@ -40,3 +40,16 @@ export const StTasksCount = styled.div`
   font-weight: 600;
   color: ${COLORS.neuteral_black_primary};
 `;
+
+export const StObserverTarget = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 10px;
+  bottom: 0;
+  pointer-events: none;
+`;
+
+export const StLoader = styled.div`
+  margin: 10px auto;
+  color: ${COLORS.neuteral_black_primary};
+`;
