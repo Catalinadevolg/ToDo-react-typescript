@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useIntersection } from "@mantine/hooks";
-import axios from "axios";
+import { Observer } from "mobx-react-lite";
 
 import { TodoList } from "@/components/TodoList";
-import { addInfoToData } from "@/utils/addInfoToData";
 import { StFlex, StSpinner } from "@/styles/global";
-import { todoAPI } from "@/api/todos";
-import type { TodoItemData } from "@/types";
+import store from "@/store/store";
+
 import {
   StApp,
   StHead,
@@ -15,13 +14,11 @@ import {
   StTasksCount,
   StObserverTarget,
   StLoader,
+  StError,
 } from "./styled";
 
 function App() {
-  const [todoList, setTodoList] = useState<TodoItemData[]>([]);
-  const [totalTasksCount, setTotalTasksCount] = useState<number>(0);
-  const [isTasksLoading, setIsTasksLoading] = useState(true);
-  const [page, setPage] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { ref, entry } = useIntersection({
@@ -29,60 +26,56 @@ function App() {
     threshold: 1,
   });
 
-  const getTodoList = useCallback(async () => {
-    setIsTasksLoading(true);
-
-    try {
-      const { data, headers } = await todoAPI.get(page);
-
-      const fullInfo = addInfoToData(data);
-      setTodoList((prevList) => [...prevList, ...fullInfo]);
-      setPage((prevPage) => prevPage + 1);
-      setTotalTasksCount(headers["x-total-count"] as number);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return error.message;
-      } else {
-        return "An unexpected error occurred";
-      }
-    } finally {
-      setIsTasksLoading(false);
-    }
-  }, [page]);
-
   useEffect(() => {
-    if (!entry || (totalTasksCount && todoList.length >= totalTasksCount))
+    if (
+      !entry ||
+      (store.totalTasksCount && store.todoList.length >= store.totalTasksCount)
+    )
       return;
 
-    if (entry.isIntersecting && !isTasksLoading) {
-      getTodoList().catch((e) => console.log("error message: ", e));
+    if (entry.isIntersecting && !store.isFetching) {
+      store.getTodoList().catch((e) => console.log("error message: ", e));
     }
   }, [entry]);
 
   useEffect(() => {
-    setIsTasksLoading(false);
+    store
+      .getTodoList()
+      .then(() => setIsLoading(false))
+      .catch((e) => console.log("error message: ", e));
   }, []);
 
-  if (!todoList.length && isTasksLoading) {
-    return <StSpinner><div></div></StSpinner>
-  };
+  if (isLoading) {
+    return (
+      <StSpinner>
+        <div></div>
+      </StSpinner>
+    );
+  }
 
   return (
-    <StApp ref={containerRef}>
-      <StHead $justifyContent={"space-between"}>
-        <StTypography>Today</StTypography>
-        <StFlex $gap={8}>
-          <StIcon>
-            <use href="/sprite.svg#add-task"></use>
-          </StIcon>
-          <StTasksCount>{todoList ? todoList.length : 0}</StTasksCount>
-        </StFlex>
-      </StHead>
-      <TodoList list={todoList}>
-        <StObserverTarget ref={ref} />
-      </TodoList>
-      {isTasksLoading && <StLoader>Loading...</StLoader>}
-    </StApp>
+    <Observer>
+      {() => {
+        return (
+          <StApp ref={containerRef}>
+            <StHead $justifyContent={"space-between"}>
+              <StTypography>Today</StTypography>
+              <StFlex $gap={8}>
+                <StIcon>
+                  <use href="/sprite.svg#add-task"></use>
+                </StIcon>
+                <StTasksCount>{store.todoList.length}</StTasksCount>
+              </StFlex>
+            </StHead>
+            <TodoList list={store.todoList}>
+              <StObserverTarget ref={ref} />
+            </TodoList>
+            {store.isFetching && <StLoader>Loading...</StLoader>}
+            {store.error && <StError>{store.error}</StError>}
+          </StApp>
+        );
+      }}
+    </Observer>
   );
 }
 

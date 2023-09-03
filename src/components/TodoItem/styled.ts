@@ -77,11 +77,11 @@ export const StAvatar = styled.div<AvatarProps>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: ${({ url }: AvatarProps) =>
-    `center / cover no-repeat url(${url})`};
+  background: ${({ $url }: AvatarProps) =>
+    `center / cover no-repeat url(${$url})`};
   filter: grayscale(100%);
 `;
 
 type AvatarProps = {
-  url: string;
+  $url: string;
 };

@@ -14,6 +14,8 @@
     "@mantine/hooks": "6.0.19",
     "axios": "1.5.0",
     "eslint-config-prettier": "9.0.0",
+    "mobx": "6.10.2",
+    "mobx-react-lite": "4.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "6.0.7"

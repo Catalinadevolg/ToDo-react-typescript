@@ -57,7 +57,7 @@ export const TodoItem: FC<TodoItemData> = ({
               </StIcon>
             </StFlex>
           </StTags>
-          <StAvatar url={userAvatar} />
+          <StAvatar $url={userAvatar} />
         </StFlex>
       </StContainer>
     </StWrapper>

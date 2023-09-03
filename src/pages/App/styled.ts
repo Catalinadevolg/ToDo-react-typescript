@@ -53,3 +53,8 @@ export const StLoader = styled.div`
   margin: 10px auto;
   color: ${COLORS.neuteral_black_primary};
 `;
+
+export const StError = styled.div`
+  margin: 10px auto;
+  color: ${COLORS.primary_blue};
+`;
